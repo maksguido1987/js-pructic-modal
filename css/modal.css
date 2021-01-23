@@ -1,0 +1,46 @@
+.vmodal {
+   width: 100%;
+   height: 100%;
+   position: fixed;
+   top: 0;
+   bottom: 0;
+   left: 0;
+   right: 0;
+   background: rgba(0, 0, 0, .5);
+   display: flex;
+   overflow: auto;
+}
+
+.vmodal__body {
+   padding: 8px;
+   margin: auto;
+   width: 50%;
+   background: #fff;
+   border-radius: 5px;
+}
+
+.vmodal__body-header {
+   padding: 5px 0;
+   display: flex;
+   justify-content: space-between;
+   border-bottom: 1px solid #eee;
+}
+
+.vmodal__body-main p {
+   margin: 5px;
+}
+
+.modal-close {
+   cursor: pointer;
+}
+
+.vmodal__body-footer {
+   display: flex;
+   justify-content: flex-end;
+   border-top: 1px solid #eee;
+   padding: 8px 0 0 0;
+}
+
+.vmodal__body-footer button {
+   margin-left: 3px;
+}
