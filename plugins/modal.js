@@ -1,3 +1,29 @@
+Element.prototype.appendAfter = function (element) {
+   element.parentNode.insertBefore(this, element.nextSibling);
+}
+
+function noop() {}
+
+function _createModalFooter(buttons = []) {
+   if (buttons.length === 0) {
+      return document.createElement('div');
+   }
+   const wrap = document.createElement('div');
+   wrap.classList.add('vmodal__body-footer');
+
+   buttons.forEach(btn => {
+      const $btn = document.createElement('button');
+      $btn.textContent = btn.text;
+      $btn.classList.add('btn');
+      $btn.classList.add(`btn-${btn.type || 'secondary'}`);
+      $btn.onclick = btn.handler || noop;
+
+      wrap.appendChild($btn);
+   })
+
+   return wrap;
+}
+
 function _createModal(options) {  // системная приватная функция, не должна вызываться отдельно
    const DEFAULT_WIDTH = '50%';
    const modal = document.createElement('div');
@@ -9,16 +35,14 @@ function _createModal(options) {  // системная приватная фу�
             <span class="modal-title">${options.title || 'Title'}</span>
             ${options.closable ? `<span class="modal-close" data-close="true">&times;</span>` : ''}
          </div>
-         <div class="vmodal__body-main">
+         <div class="vmodal__body-main" data-content>
             ${options.content || ''}
-         </div>
-         <div class="vmodal__body-footer">
-            <button class="btn btn btn-outline-secondary">Ok</button>
-            <button class="btn btn btn-outline-secondary">Close</button>
          </div>
       </div>
    </div>
    `)
+   const footer = _createModalFooter(options.footerButtons);
+   footer.appendAfter(modal.querySelector('[data-content]'));
    document.body.appendChild(modal);
    return modal;
 }
@@ -31,6 +55,9 @@ $.modal = function (options) {
 
    const modal = {
       open() {
+         if (destroyed) {
+            return console.log('Modal is destroyed');
+         }
          !closing && $modal.classList.add('open');
       },
       close() {
@@ -41,16 +68,22 @@ $.modal = function (options) {
       destroy() { }
    }
 
-   $modal.addEventListener('click', event => {
+   const listener = event => {
       if (event.target.dataset.close) {
          modal.close();
       }
-   })
+   }
+
+   $modal.addEventListener('click', listener);
 
    return Object.assign(modal, {
       destroy() {
          $modal.parentNode.removeChild($modal);
+         $modal.removeEventListener('click', listener);
          destroyed = true;
+      },
+      setContent(html) {
+         $modal.querySelector('[data-content]').innerHTML = html;
       }
    })
 }
