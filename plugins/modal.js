@@ -64,6 +64,9 @@ $.modal = function (options) {
          closing = true;
          $modal.classList.remove('open');
          closing = false;
+         if (typeof options.onClose === 'function') {
+            options.onClose();
+         }
       },
       destroy() { }
    }

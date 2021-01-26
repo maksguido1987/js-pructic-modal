@@ -1,27 +1,66 @@
-const modal = $.modal({
-  title: "My Modal",
+let fruits = [
+  { id: 1, title: 'Яблоки', price: 20, img: 'https://yakutsk.sm-news.ru/wp-content/uploads/2020/02/28/full_odcjxv8h.jpg" alt="#" class="card-img-top'},
+  { id: 2, title: 'Апельсины', price: 30, img: 'https://avatars.mds.yandex.net/get-zen_doc/118779/pub_5a6f2ab079885e8848f7511f_5a6f2ac1a815f19fc4a86a22/scale_1200'},
+  { id: 3, title: 'Манго', price: 40, img: 'https://www.heilpraxisnet.de/wp-content/uploads/2015/09/Mango.jpg'},
+]
+
+const toHTML = fruit => `
+  <div class="col">
+    <div class="card">
+      <img style="height: 250px" src=${fruit.img} alt=${fruit.title} class="card-img-top">
+      <div class="card-body">
+          <h5>${fruit.title}</h5>
+          <div class="btn btn-primary" data-btn="price" data-id="${fruit.id}">Посмотреть</div>
+          <div class="btn btn-danger" data-btn="remove" data-id="${fruit.id}">Удалить</div>
+      </div>
+    </div>
+  </div>
+`
+
+function render() {
+  const html = fruits.map(toHTML).join('');
+  document.querySelector('#fruits').innerHTML = html;
+}
+
+render();
+
+const priceModal = $.modal({
+  title: "Цена товара",
   closable: true,
-  content: `
-      <h4>Modal is working</h4>
-      <p>Lorem ipsum dolor sit.</p>
-   `,
-  width: "500px",
+  width: "400px",
   footerButtons: [
     {
-      text: "Ok",
+      text: "Закрыть",
       type: "primary",
       handler() {
-        console.log("Primary btn clicked");
-        modal.close();
-      },
-    },
-    {
-      text: "Cancel",
-      type: "danger",
-      handler() {
-        console.log("Danger btn clicked");
-        modal.close();
+        priceModal.close();
       },
     },
   ],
 });
+
+
+document.addEventListener('click', event => {
+  const btnType = event.target.dataset.btn;
+  const id = +event.target.dataset.id;
+  const fruit = fruits.find(f => f.id === id);
+  
+  event.preventDefault();
+  if (btnType === 'price') {
+    priceModal.setContent(`
+      <p>Цена на ${fruit.title}: <strong>${fruit.price}$</strong></p>
+    `)
+    priceModal.open();
+  }
+  else if (btnType === 'remove') {
+    $.confirm({
+      title: 'Вы уверены?',
+      content: `<p>Вы точно хотите удалить <strong>${fruit.title} ?</strong></p>`
+    }).then(() => {
+      fruits = fruits.filter(f => f.id !== id);
+      render();
+    }).catch(() => {
+      console.log('Cancel');
+    })
+  }
+})
